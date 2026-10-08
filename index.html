@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI-Agent 下载情况</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --panel:#121b2d;
+      --line:rgba(255,255,255,0.08);
+      --text:#edf2ff;
+      --muted:#a9b5cd;
+      --primary:#8b5cf6;
+      --primary-2:#4f46e5;
+      --green:#34d399;
+      --shadow:0 18px 50px rgba(0,0,0,0.28);
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(79,70,229,0.26), transparent 25%),
+        radial-gradient(circle at bottom right, rgba(139,92,246,0.16), transparent 35%),
+        linear-gradient(180deg, #0b1020 0%, #0d1322 100%);
+      color:var(--text);
+      line-height:1.6;
+    }
+    .container{ width:min(1180px, calc(100% - 32px)); margin:0 auto; }
+    a{ color:inherit; text-decoration:none; }
+    header{
+      position:sticky; top:0; z-index:20;
+      background:rgba(11,16,32,0.8);
+      backdrop-filter:blur(10px);
+      border-bottom:1px solid var(--line);
+    }
+    .nav{
+      height:72px; display:flex; align-items:center; justify-content:space-between;
+    }
+    .brand{ font-size:1.05rem; letter-spacing:0.08em; font-weight:700; text-transform:uppercase; }
+    .nav-links{ display:flex; gap:22px; color:var(--muted); font-size:0.95rem; }
+    .nav-links a:hover{ color:var(--text); }
+    .hero{ padding:72px 0 34px; }
+    .hero-inner{
+      display:grid; grid-template-columns:1.2fr 0.8fr; gap:32px; align-items:center;
+    }
+    .eyebrow{
+      display:inline-block; padding:8px 14px; border-radius:999px;
+      border:1px solid rgba(139,92,246,0.35);
+      background:rgba(139,92,246,0.12); color:#d8b4fe;
+      font-size:0.78rem; letter-spacing:0.08em; text-transform:uppercase;
+      margin-bottom:20px;
+    }
+    h1{
+      margin:0 0 12px; font-size:clamp(2.3rem, 6vw, 5rem);
+      line-height:1.05; letter-spacing:-0.05em;
+    }
+    .hero p{ margin:0; color:var(--muted); font-size:1.08rem; max-width:620px; }
+    .hero-actions{
+      margin-top:28px; display:flex; gap:14px; flex-wrap:wrap;
+    }
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      border-radius:12px; border:1px solid var(--line);
+      padding:0 20px; height:48px; font-weight:700; transition:0.25s ease;
+    }
+    .btn.primary{
+      background:linear-gradient(135deg, var(--primary), var(--primary-2));
+      border:none; box-shadow:var(--shadow); color:#fff;
+    }
+    .btn.secondary{ background:rgba(255,255,255,0.02); color:var(--text); }
+    .btn:hover{ transform:translateY(-2px); filter:brightness(1.04); }
+    .hero-card{
+      background:linear-gradient(180deg, rgba(18,27,45,0.9), rgba(15,23,42,0.95));
+      border:1px solid var(--line); border-radius:22px; padding:24px; box-shadow:var(--shadow);
+    }
+    .mini-title{
+      font-size:0.72rem; color:var(--muted); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:12px;
+    }
+    .metric-stack{ display:grid; gap:18px; }
+    .metric{
+      background:rgba(255,255,255,0.02); border:1px solid var(--line); border-radius:16px; padding:18px 16px;
+    }
+    .metric-top{
+      display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; color:var(--muted); font-size:0.82rem;
+    }
+    .tag{
+      display:inline-block; border-radius:999px; padding:4px 8px; font-size:0.7rem; font-weight:700;
+      background:rgba(52,211,153,0.12); color:#9ae6b4; border:1px solid rgba(52,211,153,0.22);
+    }
+    .metric-value{
+      font-size:clamp(2rem, 3vw, 3rem); font-weight:800; letter-spacing:-0.05em;
+    }
+    .metric-trend{ margin-top:8px; color:var(--green); font-weight:700; font-size:0.9rem; }
+    .stats{ padding:18px 0 10px; }
+    .grid-4{
+      display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:20px;
+    }
+    .card{
+      background:linear-gradient(180deg, rgba(18,27,45,0.95), rgba(17,24,39,0.96));
+      border:1px solid var(--line); border-radius:18px; padding:22px; box-shadow:var(--shadow);
+    }
+    .label{
+      font-size:0.72rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--muted); margin-bottom:10px;
+    }
+    .value{
+      font-size:clamp(1.9rem, 2.5vw, 2.8rem); font-weight:800; letter-spacing:-0.05em; margin-bottom:10px;
+    }
+    .detail{ color:var(--muted); font-size:0.9rem; }
+    .progress{
+      width:100%; height:8px; border-radius:999px; background:rgba(255,255,255,0.08); overflow:hidden; margin-top:16px;
+    }
+    .progress > span{
+      display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg, var(--primary), var(--primary-2));
+    }
+    section{ padding:34px 0; }
+    .section-head{
+      margin:0 0 18px; font-size:clamp(1.8rem,3vw,2.5rem); letter-spacing:-0.04em;
+    }
+    .section-sub{
+      max-width:760px; color:var(--muted); margin:0 0 26px;
+    }
+    .gallery{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:22px; }
+    .image-card{
+      background:linear-gradient(180deg, rgba(18,27,45,0.95), rgba(15,23,42,0.96));
+      border:1px solid var(--line); border-radius:18px; overflow:hidden; box-shadow:var(--shadow);
+    }
+    .image-box{
+      height:370px; display:flex; align-items:center; justify-content:center; text-align:center; padding:18px;
+      font-weight:700; font-size:1.1rem; background:
+        radial-gradient(circle at top left, rgba(79,70,229,0.18), transparent 30%),
+        linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.16)), #101827;
+      border-bottom:1px solid var(--line);
+    }
+    .image-body{ padding:18px 18px 20px; }
+    .image-body strong{
+      display:block; margin-bottom:8px; color:#d8b4fe; font-size:1.05rem;
+    }
+    .image-body p{ margin:0; color:var(--muted); font-size:0.95rem; }
+    .analysis{
+      display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px;
+    }
+    .panel{
+      background:linear-gradient(180deg, rgba(18,27,45,0.95), rgba(15,23,42,0.96));
+      border:1px solid var(--line); border-radius:18px; padding:22px; box-shadow:var(--shadow);
+    }
+    .panel h3{ margin:0 0 16px; font-size:1.08rem; color:#d8b4fe; }
+    .row{
+      display:flex; justify-content:space-between; align-items:center; gap:16px; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.06);
+    }
+    .row:last-child{ border-bottom:none; }
+    .key{ color:var(--muted); font-weight:600; }
+    .value{ font-weight:700; color:var(--text); }
+    .table-wrap{
+      margin-top:22px; border:1px solid var(--line); border-radius:18px; overflow:auto;
+      background:rgba(17,24,39,0.8); box-shadow:var(--shadow);
+    }
+    table{ width:100%; min-width:620px; border-collapse:collapse; }
+    th,td{ padding:14px 16px; text-align:left; border-bottom:1px solid rgba(255,255,255,0.08); }
+    th{
+      background:rgba(255,255,255,0.02); color:#dfe7ff; font-size:0.8rem; letter-spacing:0.08em; text-transform:uppercase;
+    }
+    td{ color:var(--muted); font-size:0.95rem; }
+    tbody tr:hover{ background:rgba(255,255,255,0.025); }
+    footer{ padding:30px 0 70px; }
+    .footer-box{
+      border:1px solid var(--line); border-radius:18px; background:rgba(17,24,39,0.85);
+      padding:24px 22px; display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap; align-items:center; color:var(--muted);
+    }
+    .footer-box strong{ color:var(--text); }
+    @media (max-width:920px){
+      .hero-inner, .gallery, .analysis, .grid-4{ grid-template-columns:1fr; }
+      .nav-links{ display:none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <a href="#" class="brand">AI-Agent Analytics</a>
+      <nav class="nav-links">
+        <a href="#overview">概览</a>
+        <a href="#stats">数据</a>
+        <a href="#gallery">界面</a>
+        <a href="#analysis">分析</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="overview">
+      <div class="container hero-inner">
+        <div>
+          <div class="eyebrow">实时数据追踪</div>
+          <h1>AI-Agent 下载情况</h1>
+          <p>追踪 AI-Agent 的下载增幅、用户活跃度、地域分布及功能使用趋势，帮助产品团队分析增长表现并优化未来迭代方向。</p>
+          <div class="hero-actions">
+            <a href="#stats" class="btn primary">查看数据</a>
+            <a href="#gallery" class="btn secondary">查看界面</a>
+          </div>
+        </div>
+
+        <div class="hero-card">
+          <div class="mini-title">实时概览</div>
+          <div class="metric-stack">
+            <div class="metric">
+              <div class="metric-top">
+                <span>总下载量</span>
+                <span class="tag">+24.5%</span>
+              </div>
+              <div class="metric-value">1.25M+</div>
+              <div class="metric-trend">↗ 累计下载增长</div>
+            </div>
+            <div class="metric">
+              <div class="metric-top">
+                <span>月度下载</span>
+                <span class="tag">+32.1%</span>
+              </div>
+              <div class="metric-value">234.5K</div>
+              <div class="metric-trend">↗ 本月下载增长</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats" id="stats">
+      <div class="container">
+        <div class="grid-4">
+          <div class="card">
+            <div class="label">总下载量</div>
+            <div class="value">1.25M+</div>
+            <div class="detail">累计下载次数</div>
+            <div class="progress"><span style="width:95%"></span></div>
+          </div>
+          <div class="card">
+            <div class="label">月度下载</div>
+            <div class="value">234.5K</div>
+            <div class="detail">本月下载统计</div>
+            <div class="progress"><span style="width:85%"></span></div>
+          </div>
+          <div class="card">
+            <div class="label">活跃用户</div>
+            <div class="value">45.8K</div>
+            <div class="detail">本周活跃用户</div>
+            <div class="progress"><span style="width:78%"></span></div>
+          </div>
+          <div class="card">
+            <div class="label">日均下载</div>
+            <div class="value">7,819</div>
+            <div class="detail">日均新增下载</div>
+            <div class="progress"><span style="width:72%"></span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="gallery">
+      <div class="container">
+        <h2 class="section-head">界面展示</h2>
+        <p class="section-sub">这些界面展示了 AI-Agent 工作台的核心体验：从聊天启动页到任务协作工作台，适用于内容生成、设计、PPT、文案与数据分析场景。</p>
+        <div class="gallery">
+          <div class="image-card">
+            <div class="image-box">ChatGPT Work<br>新聊天启动页</div>
+            <div class="image-body">
+              <strong>图 1：新聊天启动页</strong>
+              <p>展示 AI 助手的起始界面，提示用户输入需求并开启协作。</p>
+            </div>
+          </div>
+          <div class="image-card">
+            <div class="image-box">Task Input<br>需求输入界面</div>
+            <div class="image-body">
+              <strong>图 2：任务输入界面</strong>
+              <p>用户根据项目需求或任务目标输入内容，启动 AI 工作流。</p>
+            </div>
+          </div>
+          <div class="image-card">
+            <div class="image-box">Work with TRAE<br>协作工作台</div>
+            <div class="image-body">
+              <strong>图 3：TRAE 协作工作台</strong>
+              <p>更加完整的工作台界面，涵盖文案、PPT、数据和协同功能。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="analysis">
+      <div class="container">
+        <h2 class="section-head">详细分析</h2>
+        <p class="section-sub">从版本分布、地域分布、平台分布到功能使用排行，整体趋势表明 AI-Agent 正在快速扩大用户覆盖范围，并在内容创作和办公协作中实现强劲增长。</p>
+
+        <div class="analysis">
+          <div class="panel">
+            <h3>版本分布</h3>
+            <div class="row"><span class="key">最新版本 (v2.5.0)</span><span class="value">654,321</span></div>
+            <div class="row"><span class="key">稳定版本 (v2.4.x)</span><span class="value">445,678</span></div>
+            <div class="row"><span class="key">旧版本</span><span class="value">154,891</span></div>
+          </div>
+          <div class="panel">
+            <h3>地域分布</h3>
+            <div class="row"><span class="key">中国</span><span class="value">456,789</span></div>
+            <div class="row"><span class="key">亚太地区</span><span class="value">398,765</span></div>
+            <div class="row"><span class="key">欧洲</span><span class="value">234,567</span></div>
+            <div class="row"><span class="key">北美</span><span class="value">164,769</span></div>
+          </div>
+          <div class="panel">
+            <h3>平台分布</h3>
+            <div class="row"><span class="key">Windows</span><span class="value">654,321</span></div>
+            <div class="row"><span class="key">macOS</span><span class="value">398,765</span></div>
+            <div class="row"><span class="key">Linux</span><span class="value">154,567</span></div>
+            <div class="row"><span class="key">移动端</span><span class="value">47,237</span></div>
+          </div>
+          <div class="panel">
+            <h3>下载趋势</h3>
+            <div class="row"><span class="key">环比增长</span><span class="value" style="color:var(--green)">+24.5%</span></div>
+            <div class="row"><span class="key">同比增长</span><span class="value" style="color:var(--green)">+156.8%</span></div>
+            <div class="row"><span class="key">目标完成率</span><span class="value">98.5%</span></div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>功能模块</th><th>使用次数</th><th>使用占比</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>ChatGPT Work 新聊天</td><td>589,234</td><td>68%</td></tr>
+              <tr><td>PPT 生成与编辑</td><td>456,789</td><td>52%</td></tr>
+              <tr><td>文案撰写助手</td><td>398,765</td><td>46%</td></tr>
+              <tr><td>数据分析工具</td><td>345,678</td><td>40%</td></tr>
+              <tr><td>视频编辑功能</td><td>234,567</td><td>27%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-box">
+      <div>
+        <strong>AI-Agent Analytics</strong><br />
+        <span>实时数据平台 • 下载情况分析</span>
+      </div>
+      <div>更新时间：2026年10月08日</div>
+    </div>
+  </footer>
+</body>
+</html>
